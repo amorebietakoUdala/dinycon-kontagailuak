@@ -4,6 +4,11 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
+    apiUsername: "%env(API_USERNAME)%"
+    apiPassword: "%env(API_PASSWORD)%"
+    apiEndpoint: "%env(API_ENDPOINT)%"
+    tokenFile: "%kernel.project_dir%/var/token.json"
+    maximumCapacity: 500
 
 services:
     # default configuration for services in *this* file

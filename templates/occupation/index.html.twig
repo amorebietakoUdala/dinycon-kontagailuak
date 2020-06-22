@@ -1,0 +1,19 @@
+{% extends "base.html.twig" %}
+
+{% block title %}{{ 'app.title' | trans }}{% endblock %}
+
+{% block stylesheets %}
+<style>
+    .maximum {
+        font-size: 1.0rem;
+    }
+    .actual {
+        font-size: 1.5rem;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+    <h2 class="maximum">{{ 'maximumCapacity' | trans }}: {{ maximumCapacity }}</h2>
+    <h2 class="actual">{{ 'occupation' | trans }}: {{ occupation }}</h2>
+{% endblock %}
