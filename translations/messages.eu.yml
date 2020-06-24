@@ -2,3 +2,8 @@ app.title: 'Gane igerilekuen edukiera'
 
 maximumCapacity: "Gehienezko edukiera"
 occupation:  "Oraingo edukiera"
+free: "Libre"
+input: "Input"
+output: "Output"
+
+btn.save: "Gorde"

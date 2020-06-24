@@ -1,4 +1,9 @@
 app.title: 'Ocupación de las piscinas Gane'
 
 maximumCapacity: "Capacidad Máxima"
-occupation:  "Occupación"
+occupation:  "Ocupación"
+free: "Libres"
+input: "Input"
+output: "Output"
+
+btn.save: "Guardar"

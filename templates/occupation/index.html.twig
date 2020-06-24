@@ -10,10 +10,19 @@
     .actual {
         font-size: 1.5rem;
     }
+    .free {
+        font-size: 1.5rem;
+    }
 </style>
 {% endblock %}
 
 {% block body %}
+    <h1>Gane</h1>
     <h2 class="maximum">{{ 'maximumCapacity' | trans }}: {{ maximumCapacity }}</h2>
-    <h2 class="actual">{{ 'occupation' | trans }}: {{ occupation }}</h2>
+    <h2 class="free">{{ 'free' | trans }}: {{ maximumCapacity - actualOccupation }}</h2>
+    <h2 class="actual">{{ 'occupation' | trans }}: {{ actualOccupation }}</h2>
+    {% if app.environment == 'dev' %}
+        <h2 class="input">{{ 'input' | trans }}: {{ input }}</h2>
+        <h2 class="output">{{ 'output' | trans }}: {{ output }}</h2>
+    {% endif %}
 {% endblock %}

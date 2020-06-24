@@ -8,7 +8,8 @@ parameters:
     apiPassword: "%env(API_PASSWORD)%"
     apiEndpoint: "%env(API_ENDPOINT)%"
     tokenFile: "%kernel.project_dir%/var/token.json"
-    maximumCapacity: 500
+    occupationFile: "%kernel.project_dir%/var/occupation.json"
+    maximumCapacity: 600
 
 services:
     # default configuration for services in *this* file
