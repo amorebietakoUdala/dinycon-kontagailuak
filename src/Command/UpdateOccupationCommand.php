@@ -106,6 +106,8 @@ class UpdateOccupationCommand extends Command
                 $filesystem = new \Symfony\Component\Filesystem\Filesystem();
                 $filesystem->dumpFile($this->params->get('tokenFile'), json_encode($responseArray));
             }
+
+            return null;
         }
         throw new \Exception("Can't login to the API endpoint");
     }
