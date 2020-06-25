@@ -39,6 +39,8 @@ class ResetOccupationCommand extends Command
         $filesystem = new Filesystem();
         $filesystem->dumpFile($this->params->get('occupationFile'), json_encode([
             'occupation' => $resetNumber,
+            'date' => (new DateTime())->format('Y-m-d'),
+            'time' => (new DateTime())->format('h:i:s'),
             ])
         );
         $io->success('Occupation reseted to '.$resetNumber);
