@@ -38,7 +38,7 @@ class OccupationController extends AbstractController
     }
 
     /**
-     * @Route("{_locale}/occupation", name="occupation")
+     * @Route("{_locale}/occupation", name="occupation_index")
      */
     public function index(KernelInterface $kernel)
     {
@@ -69,7 +69,6 @@ class OccupationController extends AbstractController
             $responseBody = json_decode($response->getContent(), true);
             $input = $responseBody['centres'][0]['accesses'][0]['data'][0]['input'];
             $output = $responseBody['centres'][0]['accesses'][0]['data'][0]['output'];
-            $this->updateOccupationFile($occupation + $input - $output);
 
             return $this->render('occupation/index.html.twig', [
                 'maximumCapacity' => $this->getParameter('maximumCapacity'),
