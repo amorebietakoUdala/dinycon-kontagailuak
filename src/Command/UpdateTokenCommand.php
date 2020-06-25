@@ -34,7 +34,7 @@ class UpdateTokenCommand extends Command
     protected function configure()
     {
         $this
-            ->setDescription('This command updates the occupation data')
+            ->setDescription('This command updates the token file')
 //            ->addArgument('arg1', InputArgument::OPTIONAL, 'Argument description')
 //            ->addOption('option1', null, InputOption::VALUE_NONE, 'Option description')
         ;
@@ -48,7 +48,7 @@ class UpdateTokenCommand extends Command
             if (null !== $content) {
                 $filesystem = new Filesystem();
                 $filesystem->dumpFile($this->params->get('tokenFile'), $content);
-                $this->io->success('Data updated!!');
+                $this->io->success('Token updated!!');
             }
         } catch (\Exception $e) {
             $this->io->error($e->getMessage());

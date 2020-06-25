@@ -42,7 +42,6 @@ class OccupationController extends AbstractController
      */
     public function index(KernelInterface $kernel)
     {
-        $baseUrl = $this->getParameter('apiEndpoint');
         $client = HttpClient::create();
         /* @ ommits the warning if the file doesn't exists */
         $tokenFile = $this->readToken($kernel);
@@ -82,6 +81,23 @@ class OccupationController extends AbstractController
         }
 
         return $this->json($tokenArray);
+    }
+
+    /**
+     * @Route("{_locale}/occupation/historic", name="occupation")
+     */
+    public function historic(KernelInterface $kernel)
+    {
+        $client = HttpClient::create();
+        $tokenFile = $this->readToken($kernel);
+        $tokenArray = json_decode($tokenFile, true);
+        $response = $client->request('GET', $this->getParameter('apiEndpoint').'/v1/secure/clients/gane/centre/86/historic?start=2020-06-2400:00&end=2020-06-2414:00', [
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer '.$tokenArray['token'],
+            ],
+        ]);
+        dd($response->getContent());
     }
 
     private function readActualOccupation(): int
