@@ -43,6 +43,45 @@ class OccupationController extends AbstractController
     public function index(KernelInterface $kernel)
     {
         $client = HttpClient::create();
+        $tokenFile = $this->readToken($kernel);
+        $tokenArray = json_decode($tokenFile, true);
+        $response = $client->request('GET', $this->getParameter('apiEndpoint').'/v1/secure/clients/gane/realtime', [
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Bearer '.$tokenArray['token'],
+            ],
+        ]);
+        if (500 === $response->getStatusCode()) {
+            $tokenFile = $this->login($kernel);
+            $tokenArray = json_decode($tokenFile, true);
+            $response = $client->request('GET', $this->getParameter('apiEndpoint').'/v1/secure/clients/gane/realtime', [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer '.$tokenArray['token'],
+                ],
+            ]);
+            $responseBody = json_decode($response->getContent(), true);
+        }
+        if (200 === $response->getStatusCode()) {
+            $responseBody = json_decode($response->getContent(), true);
+            $input = $responseBody['centres'][0]['accesses'][0]['data'][0]['input'];
+            $output = $responseBody['centres'][0]['accesses'][0]['data'][0]['output'];
+
+            return $this->render('occupation/index.html.twig', [
+                'maximumCapacity' => $this->getParameter('maximumCapacity'),
+                'input' => $input,
+                'output' => $output,
+                'actualOccupation' => $input - $output,
+            ]);
+        }
+    }
+
+    /**
+     * @Route("{_locale}/occupation/old", name="occupation_old")
+     */
+    public function old(KernelInterface $kernel)
+    {
+        $client = HttpClient::create();
         /* @ ommits the warning if the file doesn't exists */
         $tokenFile = $this->readToken($kernel);
         $occupation = $this->readActualOccupation();
