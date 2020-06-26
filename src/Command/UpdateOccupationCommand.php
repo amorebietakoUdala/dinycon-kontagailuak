@@ -43,12 +43,7 @@ class UpdateOccupationCommand extends Command
     {
         $this->io = new SymfonyStyle($input, $output);
         try {
-            $tokenFile = @file_get_contents($this->params->get('tokenFile'));
-            /* if it doesn't exists */
-            if (false === $tokenFile) {
-                $this->login();
-                $tokenFile = file_get_contents($this->params->get('tokenFile'));
-            }
+            $tokenFile = $this->readTokenFile();
             $client = HttpClient::create();
             $tokenArray = json_decode($tokenFile, true);
             $response = $client->request('GET', $this->params->get('apiEndpoint').'/v1/secure/clients/gane/centre/86/historic?last=5', [
@@ -73,7 +68,7 @@ class UpdateOccupationCommand extends Command
             $occupationFile = file_get_contents($this->params->get('occupationFile'));
             $actualOccupation = json_decode($occupationFile, true);
             $lastRecordDateTime = new \DateTime($lastRecord['date'].' '.$lastRecord['time']);
-            if (array_key_exists('date', $actualOccupation) && $actualOccupation['time']) {
+            if (array_key_exists('date', $actualOccupation) && array_key_exists('time', $actualOccupation)) {
                 $actualOccupationDateTime = new \DateTime($actualOccupation['date'].' '.$actualOccupation['time']);
             } else {
                 $actualOccupationDateTime = new \DateTime(date('Y-m-d'));
@@ -110,5 +105,17 @@ class UpdateOccupationCommand extends Command
             return null;
         }
         throw new \Exception("Can't login to the API endpoint");
+    }
+
+    private function readTokenFile(): string
+    {
+        $tokenFile = @file_get_contents($this->params->get('tokenFile'));
+        /* if it doesn't exists */
+        if (false === $tokenFile) {
+            $this->login();
+            $tokenFile = file_get_contents($this->params->get('tokenFile'));
+        }
+
+        return $tokenFile;
     }
 }

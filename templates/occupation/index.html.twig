@@ -4,6 +4,9 @@
 
 {% block stylesheets %}
 <style>
+    body {
+        font-family: "Alegreya Sans", sans-serif;
+    }
     .maximum {
         font-size: 1.0rem;
     }
@@ -17,8 +20,8 @@
 {% endblock %}
 
 {% block body %}
-    <h1>Gane</h1>
     <h2 class="maximum">{{ 'maximumCapacity' | trans }}: {{ maximumCapacity }}</h2>
+    <h2 class="date">{{ 'date' | trans }}: {{ "now"|date('Y-m-d H:i:s', "Europe/Madrid") }}</h2>
     <h2 class="free">{{ 'free' | trans }}: {{ maximumCapacity - actualOccupation }}</h2>
     <h2 class="actual">{{ 'occupation' | trans }}: {{ actualOccupation }}</h2>
     {% if app.environment == 'dev' %}
