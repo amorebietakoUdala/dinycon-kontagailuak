@@ -52,7 +52,8 @@ class OccupationController extends AbstractController
             ],
         ]);
         if (500 === $response->getStatusCode()) {
-            $tokenFile = $this->login($kernel);
+            $this->login($kernel);
+            $tokenFile = $this->readToken($kernel);
             $tokenArray = json_decode($tokenFile, true);
             $response = $client->request('GET', $this->getParameter('apiEndpoint').'/v1/secure/clients/gane/realtime', [
                 'headers' => [
@@ -60,7 +61,6 @@ class OccupationController extends AbstractController
                     'Authorization' => 'Bearer '.$tokenArray['token'],
                 ],
             ]);
-            $responseBody = json_decode($response->getContent(), true);
         }
         if (200 === $response->getStatusCode()) {
             $responseBody = json_decode($response->getContent(), true);
@@ -188,7 +188,6 @@ class OccupationController extends AbstractController
 
     private function executeCommand(string $command, KernelInterface $kernel, $params = null): Response
     {
-        dump('Calling update token command');
         $application = new Application($kernel);
         $application->setAutoExit(false);
         $paramsArray = ['command' => $command];
@@ -199,7 +198,6 @@ class OccupationController extends AbstractController
         $output = new BufferedOutput();
         $application->run($input, $output);
         $content = $output->fetch();
-        dump('Response from command: '.$content);
 
         return new Response($content);
     }
