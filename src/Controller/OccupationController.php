@@ -66,12 +66,13 @@ class OccupationController extends AbstractController
             $responseBody = json_decode($response->getContent(), true);
             $input = $responseBody['centres'][0]['accesses'][0]['data'][0]['input'];
             $output = $responseBody['centres'][0]['accesses'][0]['data'][0]['output'];
+            $occupation = (($input - $output) < 0) ? 0 : ($input - $output);
 
             return $this->render('occupation/index.html.twig', [
                 'maximumCapacity' => $this->getParameter('maximumCapacity'),
                 'input' => $input,
                 'output' => $output,
-                'actualOccupation' => $input - $output,
+                'actualOccupation' => $occupation,
             ]);
         }
     }
