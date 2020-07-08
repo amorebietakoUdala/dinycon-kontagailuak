@@ -75,6 +75,8 @@ class OccupationController extends AbstractController
                 'actualOccupation' => $occupation,
             ]);
         }
+
+        return $this->render('occupation/error.html.twig');
     }
 
     /**

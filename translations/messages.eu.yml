@@ -7,4 +7,6 @@ input: "Input"
 output: "Output"
 date: "Data"
 
+system.error: "Sistema akats bat gertatu da. Saia zaitez geroago mesedez."
+
 btn.save: "Gorde"
