@@ -40,7 +40,7 @@ class OccupationController extends AbstractController
     /**
      * @Route("{_locale}/occupation", name="occupation_index")
      */
-    public function index(KernelInterface $kernel)
+    public function index(KernelInterface $kernel, \Symfony\Contracts\Translation\TranslatorInterface $translator)
     {
         $client = HttpClient::create();
         $tokenFile = $this->readToken($kernel);
@@ -51,6 +51,14 @@ class OccupationController extends AbstractController
                 'Authorization' => 'Bearer '.$tokenArray['token'],
             ],
         ]);
+        if (404 === $response->getStatusCode()) {
+            $this->addFlash(
+                'error',
+                $translator->trans('system.error', [
+                    '%error%' => $this->getParameter('apiEndpoint').' not responding',
+                ])
+            );
+        }
         if (500 === $response->getStatusCode()) {
             $this->login($kernel);
             $tokenFile = $this->readToken($kernel);

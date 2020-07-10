@@ -7,6 +7,6 @@ input: "Input"
 output: "Output"
 date: "Fecha"
 
-system.error: "Se ha producido un error de sistema. Inténtelo más tarde."
+system.error: "Se ha producido un error de sistema. Inténtelo más tarde: %error%"
 
 btn.save: "Guardar"

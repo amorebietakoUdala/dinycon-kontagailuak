@@ -30,5 +30,9 @@
 {% endblock %}
 
 {% block body %}
-    <h2 class="alert alert-danger">{{ 'system.error' | trans }}</h2>
+    {% for msg in app.session.flashBag.get('error') %}
+    <div class="alert alert-danger margin-top-13">
+            {{ msg | trans }}
+    </div>
+    {% endfor %}
 {% endblock %}
