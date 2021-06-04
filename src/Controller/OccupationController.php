@@ -43,14 +43,14 @@ class OccupationController extends AbstractController
     public function index(KernelInterface $kernel, \Symfony\Contracts\Translation\TranslatorInterface $translator)
     {
         $version = $this->getParameter('apiVersion');
-        $idCentre = $this->getParameter('apiIdCentre');
+        $username = $this->getParameter('apiUsername');
         $client = HttpClient::create();
         $tokenFile = $this->readToken($kernel);
         $tokenArray = json_decode($tokenFile, true);
-        $response = $client->request('GET', $this->getParameter('apiEndpoint') . "/$version/secure/clients/$idCentre/realtime", [
+        $response = $client->request('GET', $this->getParameter('apiEndpoint') . "/$version/secure/clients/$username/realtime", [
             'headers' => [
                 'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $tokenArray['token'],
+                'Authorization' => $tokenArray['token'],
             ],
         ]);
         if (404 === $response->getStatusCode()) {
@@ -68,14 +68,14 @@ class OccupationController extends AbstractController
             $response = $client->request('GET', $this->getParameter('apiEndpoint') . "/$version/secure/clients/$idCentre/realtime", [
                 'headers' => [
                     'Content-Type' => 'application/json',
-                    'Authorization' => 'Bearer ' . $tokenArray['token'],
+                    'Authorization' => $tokenArray['token'],
                 ],
             ]);
         }
         if (200 === $response->getStatusCode() || 202 === $response->getStatusCode()) {
             $responseBody = json_decode($response->getContent(), true);
-            $input = $responseBody['centres'][0]['accesses'][0]['data'][0]['input'];
-            $output = $responseBody['centres'][0]['accesses'][0]['data'][0]['output'];
+            $input = $responseBody['centres'][0]['accesses'][0]['inputs'];
+            $output = $responseBody['centres'][0]['accesses'][0]['outputs'];
             $occupation = (($input - $output) < 0) ? 0 : ($input - $output);
 
             return $this->render('occupation/index.html.twig', [

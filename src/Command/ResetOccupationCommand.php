@@ -40,8 +40,9 @@ class ResetOccupationCommand extends Command
             $this->params->get('occupationFile'),
             json_encode([
                 'occupation' => $resetNumber,
-                'date' => (new \DateTime())->format('Y-m-d'),
-                'time' => (new \DateTime())->format('h:i:s'),
+                'inputs' => 0,
+                'outputs' => 0,
+                'timestamp' => (new \DateTime())->format('Y-m-d h:i:s'),
             ])
         );
         $io->success('Occupation reseted to ' . $resetNumber);

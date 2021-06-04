@@ -48,7 +48,6 @@ class UpdateOccupationCommand extends Command
             $tokenFile = $this->readTokenFile();
             $client = HttpClient::create();
             $tokenArray = json_decode($tokenFile, true);
-            //            dd($tokenArray['token']);
             $now = new \DateTime(); //current date/time
             $endDate = $now->format('Y-m-dH:i');
             $now->add(\DateInterval::createFromDateString('-1 hour'));
@@ -71,19 +70,18 @@ class UpdateOccupationCommand extends Command
                     ],
                 ]);
             }
-            //            dd($response->getStatusCode(), $response->getContent());
             $responseBody = json_decode($response->getContent(), true);
             $lastRecord = $responseBody['centre']['accesses'][0]['data'][0];
-            $occupationFile = file_get_contents($this->params->get('occupationFile'));
+            $occupationFile = $this->getOrCreateOccupationFile($this->params->get('occupationFile'));
             $actualOccupation = json_decode($occupationFile, true);
-            $lastRecordDateTime = new \DateTime($lastRecord['date'] . ' ' . $lastRecord['time']);
-            if (array_key_exists('date', $actualOccupation) && array_key_exists('time', $actualOccupation)) {
-                $actualOccupationDateTime = new \DateTime($actualOccupation['date'] . ' ' . $actualOccupation['time']);
+            $lastRecordDateTime = new \DateTime($lastRecord['timestamp']);
+            if (null !== $actualOccupation && array_key_exists('timestamp', $actualOccupation)) {
+                $actualOccupationDateTime = new \DateTime($actualOccupation['timestamp']);
             } else {
                 $actualOccupationDateTime = new \DateTime(date('Y-m-d'));
             }
             if ($lastRecordDateTime > $actualOccupationDateTime) {
-                $actualOccupation['occupation'] = $actualOccupation['occupation'] + $lastRecord['input'] - $lastRecord['output'];
+                $actualOccupation['occupation'] = $actualOccupation['occupation'] + $lastRecord['inputs'] - $lastRecord['outputs'];
                 $merge = array_merge($actualOccupation, $lastRecord);
                 $filesystem = new \Symfony\Component\Filesystem\Filesystem();
                 $filesystem->dumpFile($this->params->get('occupationFile'), json_encode($merge));
@@ -126,5 +124,25 @@ class UpdateOccupationCommand extends Command
         }
 
         return $tokenFile;
+    }
+
+    private function getOrCreateOccupationFile($path)
+    {
+        $occupationFile = null;
+        try {
+            $occupationFile = file_get_contents($path);
+        } catch (\Exception $e) {
+        }
+        if (null === $occupationFile) {
+            $filesystem = new \Symfony\Component\Filesystem\Filesystem();
+            $actualOccupation = [
+                'occupation' => 0,
+                'inputs' => 0,
+                'outputs' => 0
+            ];
+            $filesystem->dumpFile($path, json_encode($actualOccupation));
+            $occupationFile = file_get_contents($path);
+        }
+        return $occupationFile;
     }
 }
