@@ -7,6 +7,8 @@ parameters:
     apiUsername: "%env(API_USERNAME)%"
     apiPassword: "%env(API_PASSWORD)%"
     apiEndpoint: "%env(API_ENDPOINT)%"
+    apiIdCentre: "%env(API_ID_CENTRE)%"
+    apiVersion: "%env(API_VERSION)%"
     tokenFile: "%kernel.project_dir%/var/token.json"
     occupationFile: "%kernel.project_dir%/var/occupation.json"
     maximumCapacity: 600

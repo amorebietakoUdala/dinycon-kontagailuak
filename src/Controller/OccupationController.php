@@ -42,20 +42,22 @@ class OccupationController extends AbstractController
      */
     public function index(KernelInterface $kernel, \Symfony\Contracts\Translation\TranslatorInterface $translator)
     {
+        $version = $this->getParameter('apiVersion');
+        $idCentre = $this->getParameter('apiIdCentre');
         $client = HttpClient::create();
         $tokenFile = $this->readToken($kernel);
         $tokenArray = json_decode($tokenFile, true);
-        $response = $client->request('GET', $this->getParameter('apiEndpoint').'/v1/secure/clients/gane/realtime', [
+        $response = $client->request('GET', $this->getParameter('apiEndpoint') . "/$version/secure/clients/$idCentre/realtime", [
             'headers' => [
                 'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer '.$tokenArray['token'],
+                'Authorization' => 'Bearer ' . $tokenArray['token'],
             ],
         ]);
         if (404 === $response->getStatusCode()) {
             $this->addFlash(
                 'error',
                 $translator->trans('system.error', [
-                    '%error%' => $this->getParameter('apiEndpoint').' not responding',
+                    '%error%' => $this->getParameter('apiEndpoint') . ' not responding',
                 ])
             );
         }
@@ -63,14 +65,14 @@ class OccupationController extends AbstractController
             $this->login($kernel);
             $tokenFile = $this->readToken($kernel);
             $tokenArray = json_decode($tokenFile, true);
-            $response = $client->request('GET', $this->getParameter('apiEndpoint').'/v1/secure/clients/gane/realtime', [
+            $response = $client->request('GET', $this->getParameter('apiEndpoint') . "/$version/secure/clients/$idCentre/realtime", [
                 'headers' => [
                     'Content-Type' => 'application/json',
-                    'Authorization' => 'Bearer '.$tokenArray['token'],
+                    'Authorization' => 'Bearer ' . $tokenArray['token'],
                 ],
             ]);
         }
-        if (200 === $response->getStatusCode()) {
+        if (200 === $response->getStatusCode() || 202 === $response->getStatusCode()) {
             $responseBody = json_decode($response->getContent(), true);
             $input = $responseBody['centres'][0]['accesses'][0]['data'][0]['input'];
             $output = $responseBody['centres'][0]['accesses'][0]['data'][0]['output'];
@@ -88,65 +90,19 @@ class OccupationController extends AbstractController
     }
 
     /**
-     * @Route("{_locale}/occupation/old", name="occupation_old")
-     */
-    public function old(KernelInterface $kernel)
-    {
-        $client = HttpClient::create();
-        /* @ ommits the warning if the file doesn't exists */
-        $tokenFile = $this->readToken($kernel);
-        $occupation = $this->readActualOccupation();
-        /* if it doesn't exists */
-        $tokenArray = json_decode($tokenFile, true);
-        $response = $client->request('GET', $this->getParameter('apiEndpoint').'/v1/secure/clients/gane/realtime', [
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer '.$tokenArray['token'],
-            ],
-        ]);
-        if (500 === $response->getStatusCode()) {
-            dump('Before login');
-            $tokenFile = $this->login($kernel);
-            dump('After login');
-            $tokenArray = json_decode($tokenFile, true);
-            $response = $client->request('GET', $this->getParameter('apiEndpoint').'/v1/secure/clients/gane/realtime', [
-                'headers' => [
-                    'Content-Type' => 'application/json',
-                    'Authorization' => 'Bearer '.$tokenArray['token'],
-                ],
-            ]);
-            dump($tokenFile, $tokenArray);
-            $responseBody = json_decode($response->getContent(), true);
-        }
-        if (200 === $response->getStatusCode()) {
-            $responseBody = json_decode($response->getContent(), true);
-            $input = $responseBody['centres'][0]['accesses'][0]['data'][0]['input'];
-            $output = $responseBody['centres'][0]['accesses'][0]['data'][0]['output'];
-
-            return $this->render('occupation/index.html.twig', [
-                'maximumCapacity' => $this->getParameter('maximumCapacity'),
-                'input' => $input,
-                'output' => $output,
-                'sinceLastCall' => $input - $output,
-                'actualOccupation' => $occupation + $input - $output,
-            ]);
-        }
-
-        return $this->json($tokenArray);
-    }
-
-    /**
      * @Route("{_locale}/occupation/historic", name="occupation")
      */
     public function historic(KernelInterface $kernel)
     {
+        $version = $this->getParameter('apiVersion');
+        $idCentre = $this->getParameter('apiIdCentre');
         $client = HttpClient::create();
         $tokenFile = $this->readToken($kernel);
         $tokenArray = json_decode($tokenFile, true);
-        $response = $client->request('GET', $this->getParameter('apiEndpoint').'/v1/secure/clients/gane/centre/86/historic?start=2020-06-2400:00&end=2020-06-2414:00', [
+        $response = $client->request('GET', $this->getParameter('apiEndpoint') . '/$version/secure/clients/$idCentre/historic?start=2020-06-2400:00&end=2020-06-2414:00', [
             'headers' => [
                 'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer '.$tokenArray['token'],
+                'Authorization' => 'Bearer ' . $tokenArray['token'],
             ],
         ]);
         dd($response->getContent());
@@ -169,8 +125,10 @@ class OccupationController extends AbstractController
     {
         $occupationFile = $this->getParameter('occupationFile');
         $filesystem = new Filesystem();
-        $filesystem->dumpFile($occupationFile, json_encode([
-            'occupation' => $occupation,
+        $filesystem->dumpFile(
+            $occupationFile,
+            json_encode([
+                'occupation' => $occupation,
             ])
         );
     }

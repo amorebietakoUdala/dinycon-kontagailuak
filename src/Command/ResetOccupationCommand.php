@@ -25,8 +25,7 @@ class ResetOccupationCommand extends Command
     {
         $this
             ->setDescription('Resets the occupation file to 0')
-            ->addArgument('occupation', InputArgument::OPTIONAL, 'Integer to reset to')
-        ;
+            ->addArgument('occupation', InputArgument::OPTIONAL, 'Integer to reset to');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -37,13 +36,15 @@ class ResetOccupationCommand extends Command
             $resetNumber = $input->getArgument('occupation');
         }
         $filesystem = new Filesystem();
-        $filesystem->dumpFile($this->params->get('occupationFile'), json_encode([
-            'occupation' => $resetNumber,
-            'date' => (new \DateTime())->format('Y-m-d'),
-            'time' => (new \DateTime())->format('h:i:s'),
+        $filesystem->dumpFile(
+            $this->params->get('occupationFile'),
+            json_encode([
+                'occupation' => $resetNumber,
+                'date' => (new \DateTime())->format('Y-m-d'),
+                'time' => (new \DateTime())->format('h:i:s'),
             ])
         );
-        $io->success('Occupation reseted to '.$resetNumber);
+        $io->success('Occupation reseted to ' . $resetNumber);
 
         return 0;
     }

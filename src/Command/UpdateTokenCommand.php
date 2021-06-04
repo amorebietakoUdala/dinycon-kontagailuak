@@ -25,6 +25,8 @@ class UpdateTokenCommand extends Command
         $this->params = $params;
         $this->username = $params->get('apiUsername');
         $this->password = $params->get('apiPassword');
+        $this->idCentre = $params->get('apiIdCentre');
+        $this->version = $params->get('apiVersion');
         $this->client = HttpClient::create();
         parent::__construct();
     }
@@ -35,8 +37,8 @@ class UpdateTokenCommand extends Command
     {
         $this
             ->setDescription('This command updates the token file')
-//            ->addArgument('arg1', InputArgument::OPTIONAL, 'Argument description')
-//            ->addOption('option1', null, InputOption::VALUE_NONE, 'Option description')
+            //            ->addArgument('arg1', InputArgument::OPTIONAL, 'Argument description')
+            //            ->addOption('option1', null, InputOption::VALUE_NONE, 'Option description')
         ;
     }
 
@@ -59,11 +61,11 @@ class UpdateTokenCommand extends Command
 
     private function login(): ?string
     {
-        $response = $this->client->request('POST', $this->params->get('apiEndpoint').'/v1/auth/login', [
+        $response = $this->client->request('POST', $this->params->get('apiEndpoint') . "/$this->version/auth/login", [
             'headers' => [
                 'Content-Type' => 'application/json',
             ],
-            'body' => '{"username": "'.$this->username.'","password": "'.$this->password.'"}',
+            'body' => '{"username": "' . $this->username . '","password": "' . $this->password . '"}',
         ]);
         $statusCode = $response->getStatusCode();
         if (200 === $statusCode) {
