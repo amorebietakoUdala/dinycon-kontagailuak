@@ -59,14 +59,14 @@ class UpdateOccupationCommand extends Command
                 ],
             ]);
             //          dd($response->getStatusCode(), $response->getContent());
-            if (500 === $response->getStatusCode()) {
+            if (401 === $response->getStatusCode() || 500 === $response->getStatusCode()) {
                 $this->login();
                 $tokenFile = file_get_contents($this->params->get('tokenFile'));
                 $tokenArray = json_decode($tokenFile, true);
                 $response = $client->request('GET', $this->params->get('apiEndpoint') . "/$this->version/secure/clients/$this->username/centre/$this->idCentre/historic?start=$startDate&end=$endDate", [
                     'headers' => [
                         'Content-Type' => 'application/json',
-                        'Authorization' => 'Bearer ' . $tokenArray['token'],
+                        'Authorization' => $tokenArray['token'],
                     ],
                 ]);
             }
@@ -108,7 +108,6 @@ class UpdateOccupationCommand extends Command
                 $filesystem = new \Symfony\Component\Filesystem\Filesystem();
                 $filesystem->dumpFile($this->params->get('tokenFile'), json_encode($responseArray));
             }
-
             return null;
         }
         throw new \Exception("Can't login to the API endpoint");
