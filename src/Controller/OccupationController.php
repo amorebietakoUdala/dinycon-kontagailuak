@@ -54,10 +54,7 @@ class OccupationController extends AbstractController
                 'Authorization' => $tokenArray['token'],
             ],
         ]);
-        if (401 === $response->getStatusCode()) {
-            $tokenFile = $this->readToken($kernel);
-            $tokenArray = json_decode($tokenFile, true);
-        }
+
         if (404 === $response->getStatusCode()) {
             $this->addFlash(
                 'error',
@@ -66,11 +63,11 @@ class OccupationController extends AbstractController
                 ])
             );
         }
-        if (500 === $response->getStatusCode()) {
+        if (401 === $response->getStatusCode() || 500 === $response->getStatusCode()) {
             $this->login($kernel);
             $tokenFile = $this->readToken($kernel);
             $tokenArray = json_decode($tokenFile, true);
-            $response = $client->request('GET', $this->getParameter('apiEndpoint') . "/$version/secure/clients/$idCentre/realtime", [
+            $response = $client->request('GET', $this->getParameter('apiEndpoint') . "/$version/secure/clients/$username/realtime", [
                 'headers' => [
                     'Content-Type' => 'application/json',
                     'Authorization' => $tokenArray['token'],
