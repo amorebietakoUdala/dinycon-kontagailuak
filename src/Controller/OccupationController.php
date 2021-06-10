@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Form\OccupationType;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -53,6 +54,10 @@ class OccupationController extends AbstractController
                 'Authorization' => $tokenArray['token'],
             ],
         ]);
+        if (401 === $response->getStatusCode()) {
+            $tokenFile = $this->readToken($kernel);
+            $tokenArray = json_decode($tokenFile, true);
+        }
         if (404 === $response->getStatusCode()) {
             $this->addFlash(
                 'error',
@@ -105,7 +110,6 @@ class OccupationController extends AbstractController
                 'Authorization' => 'Bearer ' . $tokenArray['token'],
             ],
         ]);
-        dd($response->getContent());
     }
 
     private function readActualOccupation(): int

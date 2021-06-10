@@ -68,7 +68,7 @@ class UpdateTokenCommand extends Command
             'body' => '{"username": "' . $this->username . '","password": "' . $this->password . '"}',
         ]);
         $statusCode = $response->getStatusCode();
-        if (200 === $statusCode) {
+        if (200 === $statusCode || 202 === $statusCode) {
             $responseArray = $response->toArray();
             if (array_key_exists('token', $responseArray)) {
                 return $response->getContent();
