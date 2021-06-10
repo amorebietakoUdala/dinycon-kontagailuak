@@ -76,8 +76,8 @@ class OccupationController extends AbstractController
         }
         if (200 === $response->getStatusCode() || 202 === $response->getStatusCode()) {
             $responseBody = json_decode($response->getContent(), true);
-            $input = $responseBody['centres'][0]['accesses'][0]['inputs'];
-            $output = $responseBody['centres'][0]['accesses'][0]['outputs'];
+            $input = $responseBody['centres'][0]['accesses'][0]['totalInputs'];
+            $output = $responseBody['centres'][0]['accesses'][0]['totalOutputs'];
             $occupation = (($input - $output) < 0) ? 0 : ($input - $output);
 
             return $this->render('occupation/index.html.twig', [
