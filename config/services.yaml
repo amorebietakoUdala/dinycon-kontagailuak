@@ -11,7 +11,6 @@ parameters:
     apiVersion: "%env(API_VERSION)%"
     tokenFile: "%kernel.project_dir%/var/token.json"
     occupationFile: "%kernel.project_dir%/var/occupation.json"
-    maximumCapacity: 600
 
 services:
     # default configuration for services in *this* file

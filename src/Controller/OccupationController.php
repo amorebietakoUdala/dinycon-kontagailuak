@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Form\OccupationType;
-use Exception;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -48,7 +47,7 @@ class OccupationController extends AbstractController
         $client = HttpClient::create();
         $tokenFile = $this->readToken($kernel);
         $tokenArray = json_decode($tokenFile, true);
-        $response = $client->request('GET', $this->getParameter('apiEndpoint') . "/$version/secure/clients/$username/realtime", [
+        $response = $client->request('GET', $this->getParameter('apiEndpoint') . "/$version/secure/clients/$username/realtimezone", [
             'headers' => [
                 'Content-Type' => 'application/json',
                 'Authorization' => $tokenArray['token'],
@@ -67,7 +66,7 @@ class OccupationController extends AbstractController
             $this->login($kernel);
             $tokenFile = $this->readToken($kernel);
             $tokenArray = json_decode($tokenFile, true);
-            $response = $client->request('GET', $this->getParameter('apiEndpoint') . "/$version/secure/clients/$username/realtime", [
+            $response = $client->request('GET', $this->getParameter('apiEndpoint') . "/$version/secure/clients/$username/realtimezone", [
                 'headers' => [
                     'Content-Type' => 'application/json',
                     'Authorization' => $tokenArray['token'],
@@ -76,14 +75,11 @@ class OccupationController extends AbstractController
         }
         if (200 === $response->getStatusCode() || 202 === $response->getStatusCode()) {
             $responseBody = json_decode($response->getContent(), true);
-            $input = $responseBody['centres'][0]['accesses'][0]['totalInputs'];
-            $output = $responseBody['centres'][0]['accesses'][0]['totalOutputs'];
-            $occupation = (($input - $output) < 0) ? 0 : ($input - $output);
+            $occupation = $responseBody['centres'][0]['zones'][0]['occupation'];
+            $capacity = $responseBody['centres'][0]['zones'][0]['capacity'];
 
             return $this->render('occupation/index.html.twig', [
-                'maximumCapacity' => $this->getParameter('maximumCapacity'),
-                'input' => $input,
-                'output' => $output,
+                'capacity' => $capacity,
                 'actualOccupation' => $occupation,
             ]);
         }
@@ -101,7 +97,7 @@ class OccupationController extends AbstractController
         $client = HttpClient::create();
         $tokenFile = $this->readToken($kernel);
         $tokenArray = json_decode($tokenFile, true);
-        $response = $client->request('GET', $this->getParameter('apiEndpoint') . '/$version/secure/clients/$idCentre/historic?start=2020-06-2400:00&end=2020-06-2414:00', [
+        $response = $client->request('GET', $this->getParameter('apiEndpoint') . "/$version/secure/clients/$idCentre/historic?start=2020-06-2400:00&end=2020-06-2414:00", [
             'headers' => [
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . $tokenArray['token'],

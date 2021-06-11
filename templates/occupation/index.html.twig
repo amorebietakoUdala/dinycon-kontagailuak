@@ -20,12 +20,8 @@
 {% endblock %}
 
 {% block body %}
-    <h2 class="maximum">{{ 'maximumCapacity' | trans }}: {{ maximumCapacity }}</h2>
+    <h2 class="maximum">{{ 'maximumCapacity' | trans }}: {{ capacity }}</h2>
     <h2 class="date">{{ 'date' | trans }}: {{ "now"|date('Y-m-d H:i:s', "Europe/Madrid") }}</h2>
-    <h2 class="free">{{ 'free' | trans }}: {{ maximumCapacity - actualOccupation }}</h2>
+    <h2 class="free">{{ 'free' | trans }}: {{ capacity - actualOccupation }}</h2>
     <h2 class="actual">{{ 'occupation' | trans }}: {{ actualOccupation }}</h2>
-    {% if app.environment == 'dev' %}
-        <h2 class="input">{{ 'input' | trans }}: {{ input }}</h2>
-        <h2 class="output">{{ 'output' | trans }}: {{ output }}</h2>
-    {% endif %}
 {% endblock %}
