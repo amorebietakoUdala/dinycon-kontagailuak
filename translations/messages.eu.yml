@@ -1,12 +1,15 @@
-app.title: 'Gane igerilekuen edukiera'
+app.title: 'Kontagailuak'
 
-maximumCapacity: "Gehienezko edukiera"
-occupation:  "Oraingo okupazioa"
-free: "Libre"
-input: "Input"
-output: "Output"
-date: "Data"
+title.map: 'Mapa'
+
+label.date: "Data"
+label.name: "Izena"
+label.capacity: "Edukiera"
+label.free: "Libre"
+label.total: "Guztira"
+label.map.description: "Parkingen okupazioa"
 
 system.error: "Sistema akats bat gertatu da. Saia zaitez geroago mesedez: %error%"
+error.counterNotFound: "Eskatutako kontagailua ez da aurkitu"
 
 btn.save: "Gorde"

@@ -1,0 +1,14 @@
+{% import "parkings/_placeMarkMacro.xml.twig" as macros %}
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+	<Document>
+		<name>{{ 'app.title' | trans }}</name>
+		<description>{{ 'label.map.description' | trans }}</description>
+      
+		{% include "parkings/_parkingStyles.xml.twig" %}
+
+		{% for parking in parkings %}
+			{{ macros.placemarkMacro (loop.index, parking.nombre, parking.aforo, parking.libre, parking.lat, parking.lon ) }}
+		{% endfor %}
+   </Document>
+</kml>

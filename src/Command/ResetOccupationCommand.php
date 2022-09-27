@@ -7,29 +7,34 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
 class ResetOccupationCommand extends Command
 {
     protected static $defaultName = 'app:reset-occupation';
-    private $params;
+    private array $counters;
+    private array $configuration;
 
-    public function __construct(ParameterBagInterface $params)
+    public function __construct(private string $projectDir, private string $jsonFile)
     {
-        $this->params = $params;
+        $content = file_get_contents($jsonFile);
+        $this->counters = json_decode($content, true);
         parent::__construct();
     }
+
 
     protected function configure()
     {
         $this
             ->setDescription('Resets the occupation file to 0')
+            ->addArgument('counter', InputArgument::REQUIRED, 'Counter to reset')
             ->addArgument('occupation', InputArgument::OPTIONAL, 'Integer to reset to');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $counter = $input->getArgument('counter');
+        $this->configuration = $this->counters[$counter];
         $io = new SymfonyStyle($input, $output);
         $resetNumber = 0;
         if (null !== $input->getArgument('occupation')) {
@@ -37,7 +42,7 @@ class ResetOccupationCommand extends Command
         }
         $filesystem = new Filesystem();
         $filesystem->dumpFile(
-            $this->params->get('occupationFile'),
+            $this->projectDir.'/'.$this->configuration['occupationFile'],
             json_encode([
                 'occupation' => $resetNumber,
                 'inputs' => 0,

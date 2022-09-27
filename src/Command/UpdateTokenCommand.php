@@ -8,26 +8,19 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class UpdateTokenCommand extends Command
 {
-    private $username;
-    private $password;
-    private $client;
+    private array $counters;
+    private array $configuration;
     private $io;
-    private $params;
 
-    public function __construct(ParameterBagInterface $params)
+    public function __construct(private string $projectDir, private string $jsonFile, private HttpClientInterface $client)
     {
-        $this->params = $params;
-        $this->username = $params->get('apiUsername');
-        $this->password = $params->get('apiPassword');
-        $this->idCentre = $params->get('apiIdCentre');
-        $this->version = $params->get('apiVersion');
-        $this->client = HttpClient::create();
+        $content = file_get_contents($jsonFile);
+        $this->counters = json_decode($content, true);
         parent::__construct();
     }
 
@@ -37,35 +30,39 @@ class UpdateTokenCommand extends Command
     {
         $this
             ->setDescription('This command updates the token file')
-            //            ->addArgument('arg1', InputArgument::OPTIONAL, 'Argument description')
+            ->addArgument('counter', InputArgument::REQUIRED, 'Name of the counter to update-token')
             //            ->addOption('option1', null, InputOption::VALUE_NONE, 'Option description')
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $counter = $input->getArgument('counter');
         $this->io = new SymfonyStyle($input, $output);
         try {
-            $content = $this->login();
+            $content = $this->login($counter);
             if (null !== $content) {
                 $filesystem = new Filesystem();
-                $filesystem->dumpFile($this->params->get('tokenFile'), $content);
+                $tokenFile = $this->projectDir.'/'.$this->configuration['tokenFile'];
+                $filesystem->dumpFile($tokenFile, $content);
                 $this->io->success('Token updated!!');
             }
         } catch (\Exception $e) {
             $this->io->error($e->getMessage());
+            return Command::FAILURE;
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 
-    private function login(): ?string
+    private function login($counter): ?string
     {
-        $response = $this->client->request('POST', $this->params->get('apiEndpoint') . "/$this->version/auth/login", [
+        $this->configuration = $this->counters[$counter];
+        $response = $this->client->request('POST', $this->configuration['endpointBase']."/v".$this->configuration['version']."/auth/login", [
             'headers' => [
                 'Content-Type' => 'application/json',
             ],
-            'body' => '{"username": "' . $this->username . '","password": "' . $this->password . '"}',
+            'body' => '{"username": "' . $this->configuration['username'] . '","password": "' . $this->configuration['password'] . '"}',
         ]);
         $statusCode = $response->getStatusCode();
         if (200 === $statusCode || 202 === $statusCode) {
@@ -77,4 +74,5 @@ class UpdateTokenCommand extends Command
         throw  new \Exception($response->getContent());
         return null;
     }
+
 }

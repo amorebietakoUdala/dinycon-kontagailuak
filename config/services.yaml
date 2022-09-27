@@ -4,19 +4,23 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
-    apiUsername: "%env(API_USERNAME)%"
-    apiPassword: "%env(API_PASSWORD)%"
-    apiEndpoint: "%env(API_ENDPOINT)%"
-    apiIdCentre: "%env(API_ID_CENTRE)%"
-    apiVersion: "%env(API_VERSION)%"
-    tokenFile: "%kernel.project_dir%/var/token.json"
-    occupationFile: "%kernel.project_dir%/var/occupation.json"
+    # apiUsername: "%env(API_USERNAME)%"
+    # apiPassword: "%env(API_PASSWORD)%"
+    # apiEndpoint: "%env(API_ENDPOINT)%"
+    # apiIdCentre: "%env(API_ID_CENTRE)%"
+    # apiVersion: "%env(API_VERSION)%"
+    # tokenFile: "%kernel.project_dir%/var/token.json"
+    # occupationFile: "%kernel.project_dir%/var/occupation.json"
 
 services:
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
         autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+        bind: 
+            $jsonFile: "%kernel.project_dir%/counters.json"
+            $projectDir: '%kernel.project_dir%'
+            $googleMapsKey: "%env(GOOGLE_MAPS_KEY)%"
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -29,3 +33,8 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    # App\Controller\OccupationController:
+    #     arguments:
+    #         $jsonFile: "%kernel.project_dir%/counters.json"
+            

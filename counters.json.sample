@@ -1,0 +1,22 @@
+{
+   "name1": {
+       "username": "username1",
+       "password": "password1",
+       "centre": 1,
+       "version": 2,
+       "endpointBase": "http://example.com:3021",
+       "tokenFile": "var/token-name1.json",
+       "occupationFile": "var/occupation-name1.json",
+       "template": "occupation/name1.html.twig"
+   },
+   "name2": {
+       "username": "username2",
+       "password": "password2",
+       "centre": 1,
+       "version": 2,
+       "endpointBase": "http://example.com:3021",
+       "tokenFile": "var/token-name2.json",
+       "occupationFile": "var/occupation-name2.json",
+       "template": "occupation/name2.html.twig"
+   }
+}

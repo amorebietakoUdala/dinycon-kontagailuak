@@ -1,0 +1,43 @@
+{% extends "base.html.twig" %}
+
+{% block title %}{{ 'app.title' | trans }}{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row">
+            <div class="col-auto"><b>{{ 'label.date' | trans }}:</b> {{ "now"|date('Y-m-d H:i:s', "Europe/Madrid") }}</div>
+        </div>
+        <div class="row">
+            <div class="col-auto">
+                <table id="table" class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>{{ 'label.name' | trans }}</th>
+                            <th>{{ 'label.capacity' | trans }}</th>
+                            <th>{{ 'label.free' | trans }}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% set totalCapacity = 0 %}
+                        {% set totalFreePlaces = 0 %}
+                        {% for zone in zones %}
+                        <tr>
+                            {% set totalCapacity = totalCapacity + zone.capacity  %}
+                            {% set free = ( zone.capacity - zone.occupation ) < 0 ? 0 : zone.capacity - zone.occupation %}
+                            {% set totalFreePlaces = totalFreePlaces + free %}
+                            <td>{{ zone.name }}</td>
+                            <td>{{ zone.capacity }}</td>
+                            <td>{{ free }}</td>
+                        </tr>
+                        {% endfor %}
+                        <tfoot>
+                            <td>{{ 'label.total' | trans }}</td>
+                            <td>{{ totalCapacity }}</td>
+                            <td>{{ totalFreePlaces }}</td>
+                        </tfoor>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

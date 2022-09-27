@@ -3,23 +3,32 @@
 namespace App\Controller;
 
 use App\Form\OccupationType;
+use App\DTO\ParkingOccupationLineDTO;
 use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
-use Symfony\Component\Filesystem\Filesystem;
-use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class OccupationController extends AbstractController
 {
-    /**
-     * @Route("{_locale}/occupation/edit", name="occupation_reset")
-     */
-    public function edit(Request $request, KernelInterface $kernel): Response
+
+    private array $counters;
+    private array $configuration;
+
+    public function __construct(private string $jsonFile, private TranslatorInterface $translator, private HttpClientInterface $client, private KernelInterface $kernel) 
+    {
+        $content = file_get_contents($jsonFile);
+        $this->counters = json_decode($content, true);
+    }
+
+    #[Route('/{_locale}/occupation/{counter}/edit', name: 'occupation_reset')]
+    public function edit(Request $request, $counter): Response
     {
         $occupation = $this->readActualOccupation();
         $form = $this->createForm(OccupationType::class, [
@@ -29,7 +38,7 @@ class OccupationController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $data = $form->getData();
-            $this->reset($kernel, $data);
+            $this->reset($counter, $data);
         }
 
         return $this->render('occupation/edit.html.twig', [
@@ -37,72 +46,47 @@ class OccupationController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("{_locale}/occupation", name="occupation_index")
-     */
-    public function index(KernelInterface $kernel, \Symfony\Contracts\Translation\TranslatorInterface $translator)
+    #[Route('/{_locale}/occupation/{counter}', name: 'occupation_index')]
+    public function index(Request $request, $counter)
     {
-        $version = $this->getParameter('apiVersion');
-        $username = $this->getParameter('apiUsername');
-        $client = HttpClient::create();
-        $tokenFile = $this->readToken($kernel);
-        $tokenArray = json_decode($tokenFile, true);
-        $response = $client->request('GET', $this->getParameter('apiEndpoint') . "/$version/secure/clients/$username/realtimezone", [
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'Authorization' => $tokenArray['token'],
-            ],
-        ]);
-
+        $contentTypeJson = $request->getContentType() === 'json' || $request->get('ajax')? true : false;
+        if (!array_key_exists($counter, $this->counters)) {
+            $this->addFlash('error', 'error.counterNotFound');
+            return $this->render('occupation/error.html.twig');
+        }
+        $this->configuration = $this->counters[$counter];
+        $response = $this->sendRequest($counter);
         if (404 === $response->getStatusCode()) {
             $this->addFlash(
                 'error',
-                $translator->trans('system.error', [
-                    '%error%' => $this->getParameter('apiEndpoint') . ' not responding',
+                $this->translator->trans('system.error', [
+                    '%error%' => $this->configuration['endpointBase'] . ' not responding',
                 ])
             );
         }
         if (401 === $response->getStatusCode() || 500 === $response->getStatusCode()) {
-            $this->login($kernel);
-            $tokenFile = $this->readToken($kernel);
-            $tokenArray = json_decode($tokenFile, true);
-            $response = $client->request('GET', $this->getParameter('apiEndpoint') . "/$version/secure/clients/$username/realtimezone", [
-                'headers' => [
-                    'Content-Type' => 'application/json',
-                    'Authorization' => $tokenArray['token'],
-                ],
-            ]);
+            $this->login($counter);
+            $response = $this->sendRequest($counter);
         }
         if (200 === $response->getStatusCode() || 202 === $response->getStatusCode()) {
             $responseBody = json_decode($response->getContent(), true);
-            $occupation = $responseBody['centres'][0]['zones'][0]['occupation'];
-            $capacity = $responseBody['centres'][0]['zones'][0]['capacity'];
-
-            return $this->render('occupation/index.html.twig', [
-                'capacity' => $capacity,
-                'actualOccupation' => $occupation,
-            ]);
+            $zones = $responseBody['centre']['zones'];
+            if (!$contentTypeJson) {
+                $template = $this->configuration['template']  ?? 'occupation/default.html.twig';
+                return $this->render($template, [
+                    'zones' => $zones,
+                ]);
+            }
+            $count = count($zones);
+            if ($count > 0) {
+                foreach ($zones as $row) {
+                    $pol = ParkingOccupationLineDTO::createParkingOcupationFromData($row);
+                    $results[] = $pol;
+                }
+                return $this->json($results);
+            }
         }
-
         return $this->render('occupation/error.html.twig');
-    }
-
-    /**
-     * @Route("{_locale}/occupation/historic", name="occupation")
-     */
-    public function historic(KernelInterface $kernel)
-    {
-        $version = $this->getParameter('apiVersion');
-        $idCentre = $this->getParameter('apiIdCentre');
-        $client = HttpClient::create();
-        $tokenFile = $this->readToken($kernel);
-        $tokenArray = json_decode($tokenFile, true);
-        $response = $client->request('GET', $this->getParameter('apiEndpoint') . "/$version/secure/clients/$idCentre/historic?start=2020-06-2400:00&end=2020-06-2414:00", [
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $tokenArray['token'],
-            ],
-        ]);
     }
 
     private function readActualOccupation(): int
@@ -118,45 +102,50 @@ class OccupationController extends AbstractController
         return $occupation;
     }
 
-    private function updateOccupationFile($occupation)
-    {
-        $occupationFile = $this->getParameter('occupationFile');
-        $filesystem = new Filesystem();
-        $filesystem->dumpFile(
-            $occupationFile,
-            json_encode([
-                'occupation' => $occupation,
-            ])
-        );
+    private function sendRequest(string $counter) {
+        $version = $this->configuration['version'];
+        $username = $this->configuration['username'];
+        $centreId = $this->configuration['centre'];
+        $tokenFile = $this->readToken($counter);
+        $tokenArray = json_decode($tokenFile, true);
+        $response = $this->client->request('GET', $this->configuration['endpointBase'] . "/v$version/secure/clients/$username/centre/$centreId/realtimezone", [
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Authorization' => $tokenArray['token'],
+            ],
+        ]);
+        return $response;
     }
 
-    private function readToken(KernelInterface $kernel): string
+
+    private function readToken(string $counter): string
     {
-        $tokenFile = @file_get_contents($this->getParameter('tokenFile'));
+        $tokenFilePath = $this->kernel->getProjectDir().'/'.$this->configuration['tokenFile'];
+        $tokenFile = @file_get_contents($tokenFilePath);
         /* if it doesn't exists */
         if (false === $tokenFile) {
-            $this->login($kernel);
-            $tokenFile = file_get_contents($this->getParameter('tokenFile'));
+            $this->login($counter);
+            $tokenFile = file_get_contents($tokenFilePath);
         }
-
         return $tokenFile;
     }
 
-    private function login(KernelInterface $kernel): Response
+    private function login(string $counter): Response
     {
-        return $this->executeCommand('app:update-token', $kernel);
+        return $this->executeCommand('app:update-token', $counter);
     }
 
-    private function reset(KernelInterface $kernel, $occupation): Response
+    private function reset(string $counter, int $occupation): Response
     {
-        return $this->executeCommand('app:reset-occupation', $kernel, $occupation);
+        return $this->executeCommand('app:reset-occupation', $counter, [ 'occupation' => $occupation]);
     }
 
-    private function executeCommand(string $command, KernelInterface $kernel, $params = null): Response
+    private function executeCommand(string $command, string $counter, array $params = null): Response
     {
-        $application = new Application($kernel);
+        $application = new Application($this->kernel);
         $application->setAutoExit(false);
         $paramsArray = ['command' => $command];
+        $paramsArray['counter'] = $counter;
         if (null !== $params) {
             $paramsArray = array_merge($paramsArray, $params);
         }
@@ -164,7 +153,7 @@ class OccupationController extends AbstractController
         $output = new BufferedOutput();
         $application->run($input, $output);
         $content = $output->fetch();
-
         return new Response($content);
     }
+    
 }

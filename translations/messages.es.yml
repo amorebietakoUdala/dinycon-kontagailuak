@@ -1,12 +1,15 @@
-app.title: 'Ocupación de las piscinas Gane'
+app.title: 'Contadores'
 
-maximumCapacity: "Capacidad Máxima"
-occupation:  "Ocupación"
-free: "Libres"
-input: "Input"
-output: "Output"
-date: "Fecha"
+title.map: 'Mapa'
+
+label.date: "Fecha"
+label.name: "Nombre"
+label.capacity: "Capacidad"
+label.free: "Libres"
+label.total: "Total"
+label.map.description: "Ocupación de parkings"
 
 system.error: "Se ha producido un error de sistema. Inténtelo más tarde: %error%"
+error.counterNotFound: "El contador especificado no se encuentra"
 
 btn.save: "Guardar"
