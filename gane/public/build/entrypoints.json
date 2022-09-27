@@ -1,0 +1,9 @@
+{
+  "entrypoints": {
+    "app": {
+      "js": [
+        "/gane/build/runtime.js"
+      ]
+    }
+  }
+}
