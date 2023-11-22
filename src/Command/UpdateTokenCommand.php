@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -11,6 +12,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
+#[AsCommand(name: 'app:update-token')]
 class UpdateTokenCommand extends Command
 {
     private array $counters;
@@ -23,8 +25,6 @@ class UpdateTokenCommand extends Command
         $this->counters = json_decode($content, true);
         parent::__construct();
     }
-
-    protected static $defaultName = 'app:update-token';
 
     protected function configure()
     {

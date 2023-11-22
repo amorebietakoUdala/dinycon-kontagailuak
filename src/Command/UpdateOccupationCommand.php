@@ -2,6 +2,7 @@
 
 namespace App\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -10,6 +11,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Component\Filesystem\Filesystem;
 
+#[AsCommand(name: 'app:update-occupation')]
 class UpdateOccupationCommand extends Command
 {
     private array $counters;
@@ -22,8 +24,6 @@ class UpdateOccupationCommand extends Command
         $this->counters = json_decode($content, true);
         parent::__construct();
     }
-
-    protected static $defaultName = 'app:update-occupation';
 
     protected function configure()
     {
