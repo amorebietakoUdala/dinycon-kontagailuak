@@ -46,3 +46,7 @@ services:
     #     arguments:
     #         $jsonFile: "%kernel.project_dir%/counters.json"
             
+    # Important: priority must 100 or less
+    App\EventListener\LocaleEventListener:
+        tags:
+            - { name: 'kernel.event_listener', event: 'kernel.request', method: 'onKernelRequest', priority: 100 }
