@@ -24,7 +24,7 @@ class ResetOccupationCommand extends Command
     }
 
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('Resets the occupation file to 0')

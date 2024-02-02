@@ -49,7 +49,7 @@ class OccupationController extends AbstractController
     #[Route('/{_locale}/occupation/{counter}', name: 'occupation_index')]
     public function index(Request $request, $counter)
     {
-        $contentTypeJson = $request->getContentType() === 'json' || $request->get('ajax')? true : false;
+        $contentTypeJson = $request->getContentTypeFormat() === 'json' || $request->get('ajax')? true : false;
         if (!array_key_exists($counter, $this->counters)) {
             $this->addFlash('error', 'error.counterNotFound');
             return $this->render('occupation/error.html.twig');

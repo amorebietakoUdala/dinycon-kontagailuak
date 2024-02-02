@@ -25,7 +25,7 @@ class UpdateOccupationCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->setDescription('This command updates the occupation data')

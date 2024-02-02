@@ -11,6 +11,10 @@ parameters:
     # apiVersion: "%env(API_VERSION)%"
     # tokenFile: "%kernel.project_dir%/var/token.json"
     # occupationFile: "%kernel.project_dir%/var/occupation.json"
+    department: '%env(DEPARTMENT_DEFAULT)%'
+    contactEmail: '%env(CONTACT_EMAIL_DEFAULT)%'
+    departmentDefault: '%env(DEPARTMENT_DEFAULT)%'
+    contactEmailDefault: '%env(CONTACT_EMAIL_DEFAULT)%'
 
 services:
     # default configuration for services in *this* file
@@ -21,6 +25,10 @@ services:
             $jsonFile: "%kernel.project_dir%/counters.json"
             $projectDir: '%kernel.project_dir%'
             $googleMapsKey: "%env(GOOGLE_MAPS_KEY)%"
+            $department: '%department%'
+            $contactEmail: '%contactEmail%'
+            $departmentDefault: '%departmentDefault%'
+            $contactEmailDefault: '%contactEmailDefault%'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
