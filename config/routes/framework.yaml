@@ -1,4 +1,5 @@
 when@dev:
     _errors:
         resource: '@FrameworkBundle/Resources/config/routing/errors.xml'
-        prefix: /_error
+        # Added {_locale} to test error pages
+        prefix: '{_locale}/_error'

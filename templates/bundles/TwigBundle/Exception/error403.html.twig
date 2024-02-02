@@ -9,6 +9,6 @@
         {% set contactEmail = contactEmail is defined and contactEmail is not null ? contactEmail : contactEmailDefault %}
         <h1>{{ 'http.status.403.title' | trans({ '%department%':  department, '%contactEmail%': contactEmail }) }}</h1>
         <p>{{ 'http.status.403.description' | trans({ '%department%': department, '%contactEmail%': contactEmail }) | raw }}</p>
-        <div><a class="btn btn-primary" href="{{ path('user_security_login_check') }}">{{ 'btn.returnToLoginPage' | trans }}</a></div>
+        <div><a class="btn btn-primary" href="{{ path('app_parkings') }}">{{ 'btn.returnToMainPage' | trans }}</a></div>
     </div>
 {% endblock %}

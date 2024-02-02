@@ -8,6 +8,6 @@
     <h1>{{ 'http.status.default.title' | trans }}</h1>
     {{ 'http.status.default.description' | trans({ '%statusCode%' : statusCode, '%statusText%' : statusText }) | raw }}<br>
     {{ 'http.status.default.aditional' | trans({ '%contactEmailDefault%': contactEmailDefault }) | raw  }}<br>
-    <a class="btn btn-primary" href="{{ path('app_home') }}">{{ 'btn.returnToMainPage' | trans }}</a>
+    <a class="btn btn-primary" href="{{ path('app_parkings') }}">{{ 'btn.returnToMainPage' | trans }}</a>
 </div>
 {% endblock %}
