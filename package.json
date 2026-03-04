@@ -13,6 +13,9 @@
     "webpack-cli": "^4.10.0",
     "webpack-notifier": "^1.15.0"
   },
+  "resolutions": {
+    "css-minimizer-webpack-plugin": "^8.0"
+  },
   "scripts": {
     "dev-server": "encore dev-server",
     "dev": "encore dev",
