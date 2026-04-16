@@ -5,8 +5,8 @@
 
 {% block body %}
     <div class="container alert alert-warning">
-        <h1>{{ 'http.status.404.title' | trans }}</h1>
-        <p>{{ 'http.status.404.description' | trans | raw }}</p>
-        <a class="btn btn-primary" href="{{ path('app_parkings') }}">{{ 'btn.returnToMainPage' | trans }}</a>
+        <h1>{{ 'http.status.404.title' | trans({}, 'http-errors') }}</h1>
+        <p>{{ 'http.status.404.description' | trans({}, 'http-errors') | raw }}</p>
+        <a class="btn btn-primary" href="{{ path('app_parkings') }}">{{ 'btn.returnToMainPage' | trans({}, 'http-errors') }}</a>
     </div>
 {% endblock %}
