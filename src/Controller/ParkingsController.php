@@ -11,7 +11,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 class ParkingsController extends AbstractController
 {
 
-    public function __construct(private HttpClientInterface $client, private string $googleMapsKey) {}
+    public function __construct(private string $googleMapsKey) {}
 
     #[Route('/{_locale}/parkings', name: 'app_parkings')]
     public function index(): Response

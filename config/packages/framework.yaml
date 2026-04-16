@@ -19,6 +19,12 @@ framework:
     php_errors:
         log: true
 
+    property_info:
+        with_constructor_extractor: true
+
+    profiler:
+        collect_serializer_data: true
+
 when@dev:
     framework:
         # Add this to test error pages on dev

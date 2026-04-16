@@ -140,7 +140,7 @@ class OccupationController extends AbstractController
         return $this->executeCommand('app:reset-occupation', $counter, [ 'occupation' => $occupation]);
     }
 
-    private function executeCommand(string $command, string $counter, array $params = null): Response
+    private function executeCommand(string $command, string $counter, ?array $params = null): Response
     {
         $application = new Application($this->kernel);
         $application->setAutoExit(false);
