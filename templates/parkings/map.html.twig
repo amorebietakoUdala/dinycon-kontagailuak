@@ -16,7 +16,7 @@
 			.controls .right{ float:right }
 		</style>
 
-		<script type="text/javascript" src="https://maps.google.com/maps/api/js?key={{ googleMapsKey }}"></script>
+		<script type="text/javascript" src="https://maps.google.com/maps/api/js?key={{ googleMapsKey }}&v=3.65"></script>
 
 		<script type="text/javascript">
 			var map;
@@ -25,13 +25,18 @@
 			var layerUrl = [];
 			layerUrl[0] = "{{ absolute_url(path('app_parkings_map_source')) }}";
 			function loadLayers() {
-            layers[0] = new google.maps.KmlLayer( layerUrl[0] + "?forceupdate=" + (new Date()).valueOf(), {preserveViewport: viewportstate});
+				layers[0] = new google.maps.KmlLayer({
+					url: layerUrl[0] + "?forceupdate=" + Date.now(),
+					map: map,
+					preserveViewport: viewportstate
+				});
+//            layers[0] = new google.maps.KmlLayer( layerUrl[0] + "?forceupdate=" + (new Date()).valueOf(), {preserveViewport: viewportstate});
 			}
 			function refreshLayer(i) {
 				//remove layer
 				layers[i].setMap(null);
 				//change its url so that we would force the google to refetch data
-				layers[i].url = layerUrl[i] + "?forceupdate=" + (new Date()).valueOf();
+				layers[i].url = layerUrl[i] + "?forceupdate=" + Date.now();
 				//and re-add layer
 				layers[i].setMap(map);
 				//document.getElementById("checkbox" + i).checked = true;
